@@ -1,5 +1,18 @@
 import Course from './components/Course'
 
+const Header = ({ courses }) => {
+  return (
+    <div>
+      <h1>Web Development Curriculum</h1>
+      <div>
+        {courses.map(course => {
+          return <h2 key={course.id}>{course.name}</h2>
+        })}
+      </div>
+    </div>
+  )
+}
+
 const App = () => {
   const courses = [
     {
@@ -48,11 +61,10 @@ const App = () => {
 
   return (
     <div>
-      <h1>Web Development Curriculum</h1>
-      {courses.map(course =>
+      <Header courses={courses} />
+      {courses.map(course => (
         <Course key={course.id} course={course} />
-      )}
-
+      ))}
     </div>
   )
 }
