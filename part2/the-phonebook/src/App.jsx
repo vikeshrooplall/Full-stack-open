@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons'
 
-const Person = ({ person }) => {
+const Person = ({ person, onDelete }) => {
   return (
-    <p>{person.name} {person.number}</p>
+    <p>
+      {person.name} {person.number}
+      <button onClick={() => onDelete(person)}>Delete</button>
+    </p>
   )
 }
 
-const Persons = ({ persons, searchTerm }) => {
+const Persons = ({ persons, searchTerm, onDeletePerson }) => {
   // Find filtered persons
   const filteredPersons = persons.filter(person =>
     person.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -15,7 +18,11 @@ const Persons = ({ persons, searchTerm }) => {
   return (
     <div>
       {filteredPersons.map(person => (
-        <Person key={person.id} person={person} />
+        <Person
+          key={person.id}
+          person={person}
+          onDelete={onDeletePerson}
+        />
       ))}
     </div>
   )
@@ -69,13 +76,23 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
 
+  // handle delete
+  const handleDeletePerson = (person) => {
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService
+        .destroy(person.id)
+        .then(() => {
+          setPersons(persons.filter(p => p.id !== person.id))
+        })
+    }
+  }
   // handle search filter
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value)
@@ -96,7 +113,17 @@ const App = () => {
 
     // display error message if duplicate
     if (isDuplicate) {
-      alert(`${personObject.name} is already added to the phonebook`)
+      if (window.confirm(`${isDuplicate.name} is already added to the phonebook, Replace the old number with new one?`)) {
+        const updatedPerson = { ...isDuplicate, number: newNumber}
+        // Update person's number
+        personService
+          .update(isDuplicate.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(person =>
+              person.id !== isDuplicate.id ? person : returnedPerson
+            ))
+          })
+      }
       // clear input elements
       setNewName('')
       setNewNumber('')
@@ -104,11 +131,15 @@ const App = () => {
       return
     }
 
-    // add new person if not duplicate
-    setPersons(persons.concat(personObject))
-    // clear input element
-    setNewName('')
-    setNewNumber('')
+    // add new person if not duplicate and save to json server
+    personService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        // clear input element
+        setNewName('')
+        setNewNumber('')
+      })
   }
 
   // event handler to update name as user types
@@ -133,7 +164,11 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} searchTerm={searchTerm} />
+      <Persons
+        persons={persons}
+        searchTerm={searchTerm}
+        onDeletePerson={handleDeletePerson}
+      />
     </div>
   )
 }
