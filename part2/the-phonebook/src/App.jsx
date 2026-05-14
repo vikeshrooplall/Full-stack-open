@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 const Person = ({ person, onDelete }) => {
   return (
@@ -74,6 +75,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [notification , setNotification] = useState('')
 
   useEffect(() => {
     personService
@@ -90,9 +92,14 @@ const App = () => {
         .destroy(person.id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== person.id))
+          setNotification(`${person.name} has been deleted from Phonebook`)
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
         })
     }
   }
+
   // handle search filter
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value)
@@ -115,6 +122,7 @@ const App = () => {
     if (isDuplicate) {
       if (window.confirm(`${isDuplicate.name} is already added to the phonebook, Replace the old number with new one?`)) {
         const updatedPerson = { ...isDuplicate, number: newNumber}
+
         // Update person's number
         personService
           .update(isDuplicate.id, updatedPerson)
@@ -122,7 +130,12 @@ const App = () => {
             setPersons(persons.map(person =>
               person.id !== isDuplicate.id ? person : returnedPerson
             ))
+            setNotification(`${isDuplicate.name}'s phone number has been successfully updated`)
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
           })
+
       }
       // clear input elements
       setNewName('')
@@ -136,6 +149,12 @@ const App = () => {
       .create(personObject)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        setNotification(
+          `${returnedPerson.name} has been successfully added to the phonebook`,
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000)
+        )
         // clear input element
         setNewName('')
         setNewNumber('')
@@ -154,6 +173,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <Filter filter={searchTerm} handleFilterChange={handleSearchChange} />
       <h3>Add a new person</h3>
       <PersonForm
