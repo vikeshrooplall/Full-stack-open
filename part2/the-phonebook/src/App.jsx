@@ -10,7 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
-  const [notification , setNotification] = useState('')
+  const [notification , setNotification] = useState({ message: null, type: 'success'})
 
   useEffect(() => {
     personService
@@ -20,6 +20,13 @@ const App = () => {
       })
   }, [])
 
+  const showNotification = (message, type= 'success') => {
+    setNotification({ message, type })
+    setTimeout(() => {
+      setNotification({ message: null, type: 'success'})
+    }, 5000)
+  }
+
   // handle delete
   const handleDeletePerson = (person) => {
     if (window.confirm(`Delete ${person.name}?`)) {
@@ -27,10 +34,10 @@ const App = () => {
         .destroy(person.id)
         .then(() => {
           setPersons(persons.filter(p => p.id !== person.id))
-          setNotification(`${person.name} has been deleted from Phonebook`)
-          setTimeout(() => {
-            setNotification(null)
-          }, 5000)
+          showNotification(`${person.name} has been deleted from phonebook`, 'success')
+        })
+        .catch(() => {
+          showNotification(`${person.name} has already been removed`, 'error')
         })
     }
   }
@@ -65,12 +72,12 @@ const App = () => {
             setPersons(persons.map(person =>
               person.id !== isDuplicate.id ? person : returnedPerson
             ))
-            setNotification(`${isDuplicate.name}'s phone number has been successfully updated`)
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
+            showNotification(`${isDuplicate.name}'s phone number has been successfully updated`, 'success')
           })
-
+          .catch(() => {
+            showNotification(`${isDuplicate.name} has already been removed from phonebook`, 'error')
+            setPersons(persons.filter(p => p.id !== isDuplicate.id))
+          })
       }
       // clear input elements
       setNewName('')
@@ -84,12 +91,7 @@ const App = () => {
       .create(personObject)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
-        setNotification(
-          `${returnedPerson.name} has been successfully added to the phonebook`,
-          setTimeout(() => {
-            setNotification(null)
-          }, 5000)
-        )
+        showNotification(`${returnedPerson.name} has been successfully added to the phonebook`, 'success')
         // clear input element
         setNewName('')
         setNewNumber('')
@@ -108,7 +110,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={notification} />
+      <Notification message={notification.message} type={notification.type} />
       <Filter filter={searchTerm} handleFilterChange={handleSearchChange} />
       <h3>Add a new person</h3>
       <PersonForm
