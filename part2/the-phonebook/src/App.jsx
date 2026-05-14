@@ -1,74 +1,9 @@
 import { useState, useEffect } from 'react'
 import personService from './services/persons'
 import Notification from './components/Notification'
-
-const Person = ({ person, onDelete }) => {
-  return (
-    <p>
-      {person.name} {person.number}
-      <button onClick={() => onDelete(person)}>Delete</button>
-    </p>
-  )
-}
-
-const Persons = ({ persons, searchTerm, onDeletePerson }) => {
-  // Find filtered persons
-  const filteredPersons = persons.filter(person =>
-    person.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-  return (
-    <div>
-      {filteredPersons.map(person => (
-        <Person
-          key={person.id}
-          person={person}
-          onDelete={onDeletePerson}
-        />
-      ))}
-    </div>
-  )
-}
-
-const Filter = ({ filter, handleFilterChange }) => {
-  return (
-    <div>
-      <p>Filter shown with:</p>
-      <input
-        id='filter'
-        name='filter'
-        autoComplete='off'
-        value={filter}
-        onChange={handleFilterChange}
-      />
-    </div>
-  )
-}
-
-const PersonForm = ({ addPerson, newName, handleNameChange, newNumber, handleNumberChange }) => {
-  return (
-    <form onSubmit={addPerson}>
-      <div>
-        Name: <input
-                id="name"
-                name="name"
-                autoComplete="name"
-                value={newName}
-                onChange={handleNameChange}
-              />
-      </div>
-      <div>
-        Number: <input
-                  id="number"
-                  name="number"
-                  autoComplete="tel"
-                  value={newNumber}
-                  onChange={handleNumberChange}
-                />
-      </div>
-      <button type='submit'>Add</button>
-    </form>
-  )
-}
+import Persons from './components/Persons'
+import PersonForm from './components/PersonForm'
+import Filter from './components/Filter'
 
 const App = () => {
   const [persons, setPersons] = useState([])
