@@ -1,7 +1,7 @@
 import Country from './Country'
 import CountryDetails from './CountryDetails'
 
-const Countries = ({ countries, searchTerm}) => {
+const Countries = ({ countries, searchTerm, showCountry}) => {
 
   const filteredCountries= countries.filter(country =>
   country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
@@ -25,6 +25,7 @@ const Countries = ({ countries, searchTerm}) => {
         <Country
           key={country.cca3}
           country={country}
+          showCountry={showCountry}
         />
       ))}
     </div>

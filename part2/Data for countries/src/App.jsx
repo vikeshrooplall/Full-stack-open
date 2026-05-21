@@ -19,6 +19,10 @@ const App = () => {
     setSearchTerm(event.target.value)
   }
 
+  const showCountry = (country) => {
+    setSearchTerm(country.name.common)
+  }
+
   return (
     <div>
       <Search
@@ -27,6 +31,7 @@ const App = () => {
       <Countries
         countries={countries}
         searchTerm={searchTerm}
+        showCountry={showCountry}
       />
     </div>
   )
