@@ -64,7 +64,15 @@ app.post('/api/persons', (request, response) => {
 
   if (!body.name || !body.number) {
     return response.status(400).json({
-      error: "A person should have a name and a number"
+      error: "The name or number is missing"
+    })
+  }
+
+  const duplicateName = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
+
+  if (duplicateName) {
+    return response.status(400).json({
+      error: "The name already exists in the phonebook"
     })
   }
 
