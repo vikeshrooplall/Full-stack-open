@@ -20,7 +20,7 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
-if (process.argv.lenght >= 4) {
+if (process.argv.length >= 4) {
   const name = process.argv[3]
   const number = process.argv[4]
 
@@ -39,5 +39,6 @@ if (process.argv.lenght >= 4) {
     result.forEach(person => {
       console.log(`${person.name} ${person.number}`)
     })
+    mongoose.connection.close()
   })
 }
