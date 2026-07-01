@@ -27,34 +27,48 @@ app.get('/api/persons', (request, response) => {
 // get Info - get count from database
 app.get('/info', (request, response) => {
   const currentTime = new Date()
-  const personCount = persons.length
-  response.send(`
-    <P>Phonebook has info for ${personCount} people</p>
-    <p>${currentTime.toString()}
+  // Get count from database
+  Person.countDocuments({}).then(count => {
+    response.send(`
+      <P>Phonebook has info for ${personCount} people</p>
+      <p>${currentTime.toString()}
     `)
+  })
 })
 
 // get single person by id
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  const person = persons.find(person => person.id === id)
-  response.json(person)
+
+  Person.findById(id).then(person => {
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  })
 })
 
 // delete person
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  persons = persons.filter(person => person.id !== id)
 
-  response.status(204).end()
+  Person.findByIdAndDelete(id)
+    .then(result => {
+      if (result) {
+        response.status(204).end()
+      } else {
+        response.status(404).json({ error: 'person not found'})
+      }
+    })
 })
 
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(n => Number(n.id)))
-    : 0
-    return String(maxId + 1)
-}
+// const generateId = () => {
+//   const maxId = persons.length > 0
+//     ? Math.max(...persons.map(n => Number(n.id)))
+//     : 0
+//     return String(maxId + 1)
+// }
 
 // post new person
 app.post('/api/persons', (request, response) => {
@@ -66,22 +80,26 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  const duplicateName = persons.find(person => person.name.toLowerCase() === body.name.toLowerCase())
+  // Check for duplicate name in database
+  Person.findOne({ name: body.name })
+    .then(existingPerson => {
+      if (existingPerson) {
+        return response.status(400).json({
+          error: "The name already exists in the phonebook"
+        })
+      }
 
-  if (duplicateName) {
-    return response.status(400).json({
-      error: "The name already exists in the phonebook"
+      // Create new person
+      const person = new Person({
+        name: body.name,
+        number: body.number,
+      })
+
+      return person.save()
     })
-  }
-
-  const person = {
-    id: generateId(),
-    name: body.name,
-    number: body.number,
-  }
-
-  persons = persons.concat(person)
-  response.json(person)
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
 })
 
 const PORT = process.env.PORT
