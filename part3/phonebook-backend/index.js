@@ -28,7 +28,7 @@ app.get('/info', (request, response) => {
   const currentTime = new Date()
   Person.countDocuments({}).then(count => {
     response.send(`
-      <P>Phonebook has info for ${personCount} people</p>
+      <P>Phonebook has info for ${count} people</p>
       <p>${currentTime.toString()}
     `)
   })
