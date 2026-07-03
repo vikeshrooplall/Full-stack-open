@@ -50,25 +50,13 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 // delete person
-app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-
-  Person.findByIdAndDelete(id)
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
     .then(result => {
-      if (result) {
         response.status(204).end()
-      } else {
-        response.status(404).json({ error: 'person not found'})
-      }
     })
+    .catch(error => next(error))
 })
-
-// const generateId = () => {
-//   const maxId = persons.length > 0
-//     ? Math.max(...persons.map(n => Number(n.id)))
-//     : 0
-//     return String(maxId + 1)
-// }
 
 // post new person
 app.post('/api/persons', (request, response) => {
