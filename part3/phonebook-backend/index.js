@@ -19,7 +19,6 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 // get all persons from DB
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
-    console.log(`persons`)
     response.json(persons)
   })
 })
