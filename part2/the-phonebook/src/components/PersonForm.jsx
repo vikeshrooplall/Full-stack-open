@@ -8,6 +8,7 @@ const PersonForm = ({ addPerson, newName, handleNameChange, newNumber, handleNum
                 autoComplete="name"
                 value={newName}
                 onChange={handleNameChange}
+                placeholder="Enter name (min 3 characters)"
               />
       </div>
       <div>
@@ -17,6 +18,7 @@ const PersonForm = ({ addPerson, newName, handleNameChange, newNumber, handleNum
                   autoComplete="tel"
                   value={newNumber}
                   onChange={handleNumberChange}
+                  placeholder="e.g 09-1234556 or 040-22334455"
                 />
       </div>
       <button type='submit'>Add</button>
