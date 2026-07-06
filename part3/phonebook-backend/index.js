@@ -63,6 +63,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 // post new person
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
+  console.log('Received body:', body)
 
   if (!body.name || !body.number) {
     return response.status(400).json({
@@ -85,12 +86,19 @@ app.post('/api/persons', (request, response, next) => {
         number: body.number,
       })
 
+      console.log('About to save person:', person)
+
       return person.save()
     })
     .then(savedPerson => {
+      console.log('Saved successfully:', savedPerson)
       response.json(savedPerson)
     })
-    .catch(error => next(error))
+    .catch(error => {
+      console.log('ERROR TYPE:', error.name)
+      console.log('ERROR MESSAGE:', error.message)
+      next(error)
+    })
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -123,8 +131,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted ID'})
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
-
   next(error)
 }
 
