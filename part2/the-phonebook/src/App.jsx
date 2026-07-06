@@ -12,20 +12,25 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [notification , setNotification] = useState({ message: null, type: 'success'})
 
-  useEffect(() => {
-    personService
-      .getAll()
-      .then(initialPersons => {
-        setPersons(initialPersons)
-      })
-  }, [])
-
   const showNotification = (message, type= 'success') => {
     setNotification({ message, type })
     setTimeout(() => {
       setNotification({ message: null, type: 'success'})
     }, 5000)
   }
+
+  useEffect(() => {
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+      .catch(error => {
+        console.log('Error fetching persons', error)
+        showNotification('Failed to load phonebook entries', 'error')
+      })
+  }, [])
+
 
   // handle delete
   const handleDeletePerson = (person) => {
@@ -38,6 +43,7 @@ const App = () => {
         })
         .catch(() => {
           showNotification(`${person.name} has already been removed`, 'error')
+          setPersons(persons.filter(p => p.id !== person.id))
         })
     }
   }
@@ -50,9 +56,18 @@ const App = () => {
   const addPerson = (event) => {
     // prevent default page reload
     event.preventDefault()
+
+    const name = newName
+    const number = newNumber
+
+    if (!name || !number) {
+      showNotification('Name and number are required!', 'error')
+      return
+    }
+
     const personObject = {
-      name: newName,
-      number: newNumber
+      name: name,
+      number: number
     }
 
     // check for duplicate name
@@ -74,9 +89,14 @@ const App = () => {
             ))
             showNotification(`${isDuplicate.name}'s phone number has been successfully updated`, 'success')
           })
-          .catch(() => {
-            showNotification(`${isDuplicate.name} has already been removed from phonebook`, 'error')
-            setPersons(persons.filter(p => p.id !== isDuplicate.id))
+          .catch(error => {
+
+            if (error.response && error.response.status === 404) {
+              showNotification(`${isDuplicate.name} has already been removed from phonebook`, 'error')
+              setPersons(persons.filter(p => p.id !== isDuplicate.id))
+            } else {
+              showNotification('Failed to update phone number', 'error')
+            }
           })
       }
       // clear input elements
@@ -92,7 +112,29 @@ const App = () => {
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
         showNotification(`${returnedPerson.name} has been successfully added to the phonebook`, 'success')
-        // clear input element
+
+        setNewName('')
+        setNewNumber('')
+      })
+      .catch(error => {
+        console.log('Error adding person:', error)
+        console.log('Error response:', error.response)
+
+        if (error.response) {
+          if (error.response.status === 400) {
+            const errorMessage = error.response.data.error || 'Invalid input'
+            showNotification(errorMessage, 'error')
+          } else if (error.response.status === 404) {
+            showNotification('Person not Found', 'error')
+          } else {
+            showNotification('Something went wrong. Please try again.', 'error')
+          }
+        } else if (error.request) {
+          showNotification('Network error. Please check your connection.', 'error')
+        } else {
+          showNotification('Failed to add person. Please try again.', 'error')
+        }
+
         setNewName('')
         setNewNumber('')
       })
