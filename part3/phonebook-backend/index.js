@@ -63,11 +63,10 @@ app.delete('/api/persons/:id', (request, response, next) => {
 // post new person
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
-  console.log('Received body:', body)
 
   if (!body.name || !body.number) {
     return response.status(400).json({
-      error: "The name or number is missing"
+      error: 'The name or number is missing'
     })
   }
 
@@ -76,7 +75,7 @@ app.post('/api/persons', (request, response, next) => {
     .then(existingPerson => {
       if (existingPerson) {
         return response.status(400).json({
-          error: "The name already exists in the phonebook"
+          error: 'The name already exists in the phonebook'
         })
       }
 
@@ -86,17 +85,12 @@ app.post('/api/persons', (request, response, next) => {
         number: body.number,
       })
 
-      console.log('About to save person:', person)
-
       return person.save()
     })
     .then(savedPerson => {
-      console.log('Saved successfully:', savedPerson)
       response.json(savedPerson)
     })
     .catch(error => {
-      console.log('ERROR TYPE:', error.name)
-      console.log('ERROR MESSAGE:', error.message)
       next(error)
     })
 })
@@ -121,16 +115,15 @@ app.put('/api/persons/:id', (request, response, next) => {
 })
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint'})
+  response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
 
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted ID'})
+    return response.status(400).send({ error: 'malformatted ID' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
   }
@@ -140,6 +133,4 @@ const errorHandler = (error, request, response, next) => {
 app.use(errorHandler)
 
 const PORT = process.env.PORT
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+app.listen(PORT)
