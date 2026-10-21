@@ -1,0 +1,26 @@
+{
+  "name": "bloglist",
+  "version": "1.0.0",
+  "description": "Blog list application backend for Full Stack Open part4",
+  "homepage": "https://github.com/vikeshrooplall/Full-stack-open#readme",
+  "bugs": {
+    "url": "https://github.com/vikeshrooplall/Full-stack-open/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vikeshrooplall/Full-stack-open.git"
+  },
+  "license": "MIT",
+  "author": "Vikesh Rooplall",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "mongodb": "^7.7.0",
+    "mongoose": "^9.11.2"
+  }
+}
