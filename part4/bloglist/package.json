@@ -14,9 +14,9 @@
   "author": "Vikesh Rooplall",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
-    "test": "node --test"
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "NODE_ENV=test node --test"
   },
   "dependencies": {
     "dotenv": "^18.0.8",
@@ -24,5 +24,8 @@
     "lodash": "^4.18.1",
     "mongodb": "^7.7.0",
     "mongoose": "^9.11.2"
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
   }
 }
